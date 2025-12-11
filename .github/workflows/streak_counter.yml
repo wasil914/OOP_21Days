@@ -1,3 +1,4 @@
+# ref: 740cbe476456dd6f0f8f1b0f3e5177d09b066f02
 name: Update Streak Badge
 
 on:
@@ -25,14 +26,38 @@ jobs:
 
       - name: Update README with new Day Count
         run: |
-          # Define the new badge URL
+          # Build the new badge (URL-escaped safely by relying on simple characters)
           NEW_BADGE="![Day](https://img.shields.io/badge/OOP_Streak-Day_${{ steps.count_days.outputs.DAYS_COUNT }}-FF4500?style=for-the-badge&logo=fire&logoColor=white)"
-          
-          # Use sed to replace the content between the start/end tags
-          sed -i '//,//c\\n'"$NEW_BADGE"'\n' README.md
+
+          # Ensure README.md exists
+          if [ ! -f README.md ]; then
+            echo -e "<!--STREAK_BADGE_START-->\n$NEW_BADGE\n<!--STREAK_BADGE_END-->\n" > README.md
+            exit 0
+          fi
+
+          # If markers are missing, insert them at top of README.md (so we have a stable replacement area)
+          if ! grep -q "<!--STREAK_BADGE_START-->" README.md || ! grep -q "<!--STREAK_BADGE_END-->" README.md; then
+            # Prepend the badge block to the file
+            tmpfile=$(mktemp)
+            {
+              echo "<!--STREAK_BADGE_START-->"
+              echo "$NEW_BADGE"
+              echo "<!--STREAK_BADGE_END-->"
+              echo ""
+              cat README.md
+            } > "$tmpfile"
+            mv "$tmpfile" README.md
+          else
+            # Replace everything between the markers (inclusive) with the markers + new badge
+            sed -i '/<!--STREAK_BADGE_START-->/,/<\!--STREAK_BADGE_END-->/c\
+<!--STREAK_BADGE_START-->\
+'"$NEW_BADGE"'\
+<!--STREAK_BADGE_END-->' README.md
+          fi
 
       - name: Commit and Push changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "🔥 Auto-update streak badge to Day ${{ steps.count_days.outputs.DAYS_COUNT }}"
-          branch: ${{ github.head_ref }}
+          # Use the branch name for the current ref (works for push and workflow_dispatch)
+          branch: ${{ github.ref_name }}
