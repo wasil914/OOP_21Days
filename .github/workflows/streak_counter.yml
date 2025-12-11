@@ -1,0 +1,38 @@
+name: Update Streak Badge
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Get all history to count commits
+
+      - name: Count Unique Active Days
+        id: count_days
+        run: |
+          # Git command to extract dates, unique them, and count lines
+          # This counts total unique days you worked on THIS repo
+          DAYS_COUNT=$(git log --format=%cd --date=short | sort | uniq | wc -l)
+          echo "DAYS_COUNT=$DAYS_COUNT" >> $GITHUB_OUTPUT
+          echo "You have worked on this repo for $DAYS_COUNT days."
+
+      - name: Update README with new Day Count
+        run: |
+          # Define the new badge URL
+          NEW_BADGE="![Day](https://img.shields.io/badge/OOP_Streak-Day_${{ steps.count_days.outputs.DAYS_COUNT }}-FF4500?style=for-the-badge&logo=fire&logoColor=white)"
+          
+          # Use sed to replace the content between the start/end tags
+          sed -i '//,//c\\n'"$NEW_BADGE"'\n' README.md
+
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "🔥 Auto-update streak badge to Day ${{ steps.count_days.outputs.DAYS_COUNT }}"
+          branch: ${{ github.head_ref }}
