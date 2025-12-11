@@ -1,4 +1,3 @@
-# ref: 740cbe476456dd6f0f8f1b0f3e5177d09b066f02
 name: Update Streak Badge
 
 on:
@@ -9,55 +8,46 @@ on:
 jobs:
   update-readme:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Explicitly grant write permission here for safety
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # Get all history to count commits
+          fetch-depth: 0
 
       - name: Count Unique Active Days
         id: count_days
         run: |
-          # Git command to extract dates, unique them, and count lines
-          # This counts total unique days you worked on THIS repo
+          # Count unique days with commits
           DAYS_COUNT=$(git log --format=%cd --date=short | sort | uniq | wc -l)
           echo "DAYS_COUNT=$DAYS_COUNT" >> $GITHUB_OUTPUT
-          echo "You have worked on this repo for $DAYS_COUNT days."
+          echo "Found $DAYS_COUNT active days."
 
       - name: Update README with new Day Count
         run: |
-          # Build the new badge (URL-escaped safely by relying on simple characters)
+          # 1. Define the badge with the new count
           NEW_BADGE="![Day](https://img.shields.io/badge/OOP_Streak-Day_${{ steps.count_days.outputs.DAYS_COUNT }}-FF4500?style=for-the-badge&logo=fire&logoColor=white)"
-
-          # Ensure README.md exists
+          
+          # 2. Check if README exists, if not, create it
           if [ ! -f README.md ]; then
-            echo -e "<!--STREAK_BADGE_START-->\n$NEW_BADGE\n<!--STREAK_BADGE_END-->\n" > README.md
+            echo -e "\n$NEW_BADGE\n\n" > README.md
             exit 0
           fi
 
-          # If markers are missing, insert them at top of README.md (so we have a stable replacement area)
-          if ! grep -q "<!--STREAK_BADGE_START-->" README.md || ! grep -q "<!--STREAK_BADGE_END-->" README.md; then
-            # Prepend the badge block to the file
-            tmpfile=$(mktemp)
-            {
-              echo "<!--STREAK_BADGE_START-->"
-              echo "$NEW_BADGE"
-              echo "<!--STREAK_BADGE_END-->"
-              echo ""
-              cat README.md
-            } > "$tmpfile"
-            mv "$tmpfile" README.md
+          # 3. Check if markers exist. If NOT, add them to the top of the file
+          if ! grep -q "" README.md; then
+            echo "Markers not found. Adding them to the top..."
+            # Create temp file with badge at top + original content below
+            echo -e "\n$NEW_BADGE\n\n\n$(cat README.md)" > README.md
           else
-            # Replace everything between the markers (inclusive) with the markers + new badge
-            sed -i '/<!--STREAK_BADGE_START-->/,/<\!--STREAK_BADGE_END-->/c\
-<!--STREAK_BADGE_START-->\
-'"$NEW_BADGE"'\
-<!--STREAK_BADGE_END-->' README.md
+            # 4. Markers exist, so just update the line between them
+            # Fixed the typo here (removed the backslash before !)
+            sed -i '//,//c\\n'"$NEW_BADGE"'\n' README.md
           fi
 
       - name: Commit and Push changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "🔥 Auto-update streak badge to Day ${{ steps.count_days.outputs.DAYS_COUNT }}"
-          # Use the branch name for the current ref (works for push and workflow_dispatch)
           branch: ${{ github.ref_name }}
