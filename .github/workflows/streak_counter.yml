@@ -9,7 +9,7 @@ jobs:
   update-readme:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Explicitly grant write permission here for safety
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -24,27 +24,50 @@ jobs:
           echo "DAYS_COUNT=$DAYS_COUNT" >> $GITHUB_OUTPUT
           echo "Found $DAYS_COUNT active days."
 
-      - name: Update README with new Day Count
+      - name: Update README with Python
+        env:
+          # Pass the day count into Python environment
+          DAYS_COUNT: ${{ steps.count_days.outputs.DAYS_COUNT }}
         run: |
-          # 1. Define the badge with the new count
-          NEW_BADGE="![Day](https://img.shields.io/badge/OOP_Streak-Day_${{ steps.count_days.outputs.DAYS_COUNT }}-FF4500?style=for-the-badge&logo=fire&logoColor=white)"
-          
-          # 2. Check if README exists, if not, create it
-          if [ ! -f README.md ]; then
-            echo -e "\n$NEW_BADGE\n\n" > README.md
-            exit 0
-          fi
+          python3 -c "
+          import os
+          import re
 
-          # 3. Check if markers exist. If NOT, add them to the top of the file
-          if ! grep -q "" README.md; then
-            echo "Markers not found. Adding them to the top..."
-            # Create temp file with badge at top + original content below
-            echo -e "\n$NEW_BADGE\n\n\n$(cat README.md)" > README.md
-          else
-            # 4. Markers exist, so just update the line between them
-            # Fixed the typo here (removed the backslash before !)
-            sed -i '//,//c\\n'"$NEW_BADGE"'\n' README.md
-          fi
+          # 1. Setup variables
+          days = os.environ['DAYS_COUNT']
+          badge_url = f'https://img.shields.io/badge/OOP_Streak-Day_{days}-FF4500?style=for-the-badge&logo=fire&logoColor=white'
+          badge_markdown = f'![Day]({badge_url})'
+          
+          start_tag = ''
+          end_tag = ''
+          new_block = f'{start_tag}\n{badge_markdown}\n{end_tag}'
+          
+          readme_path = 'README.md'
+
+          # 2. Read README
+          if os.path.exists(readme_path):
+              with open(readme_path, 'r') as f:
+                  content = f.read()
+          else:
+              content = ''
+
+          # 3. Replace or Prepend
+          # Regex matches everything between start and end tags (dotall mode)
+          pattern = re.compile(f'{re.escape(start_tag)}.*?{re.escape(end_tag)}', re.DOTALL)
+
+          if pattern.search(content):
+              # If tags exist, replace the content between them
+              new_content = pattern.sub(new_block, content)
+              print('Updated existing badge.')
+          else:
+              # If tags don't exist, put it at the very top
+              new_content = f'{new_block}\n\n{content}'
+              print('Created new badge at top.')
+
+          # 4. Save
+          with open(readme_path, 'w') as f:
+              f.write(new_content)
+          "
 
       - name: Commit and Push changes
         uses: stefanzweifel/git-auto-commit-action@v4
