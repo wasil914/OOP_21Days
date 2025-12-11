@@ -1,0 +1,119 @@
+name: Update Streak Badge
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+  schedule:
+    # Run daily at midnight UTC to keep badge current
+    - cron: '0 0 * * *'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Count Unique Active Days
+        id: count_days
+        run: |
+          # Count unique days with commits
+          DAYS_COUNT=$(git log --format=%cd --date=short | sort | uniq | wc -l)
+          echo "DAYS_COUNT=$DAYS_COUNT" >> $GITHUB_OUTPUT
+          echo "Found $DAYS_COUNT active days."
+          
+          # Calculate current streak (consecutive days from today backwards)
+          CURRENT_STREAK=$(git log --format=%cd --date=short | sort -r | uniq | awk '
+            BEGIN { streak=0; prev="" }
+            {
+              if (prev == "") {
+                prev = $1
+                streak = 1
+              } else {
+                cmd = "date -d \"" prev " -1 day\" +%Y-%m-%d 2>/dev/null || date -v-1d -j -f \"%Y-%m-%d\" " prev " +%Y-%m-%d"
+                cmd | getline expected
+                close(cmd)
+                if ($1 == expected) {
+                  streak++
+                  prev = $1
+                } else {
+                  exit
+                }
+              }
+            }
+            END { print streak }
+          ')
+          echo "CURRENT_STREAK=$CURRENT_STREAK" >> $GITHUB_OUTPUT
+          echo "Current streak: $CURRENT_STREAK days"
+      
+      - name: Update README with Python
+        env:
+          DAYS_COUNT: ${{ steps.count_days.outputs.DAYS_COUNT }}
+          CURRENT_STREAK: ${{ steps.count_days.outputs.CURRENT_STREAK }}
+        run: |
+          python3 -c "
+          import os
+          import re
+          from datetime import datetime
+          
+          # Get counts
+          total_days = os.environ['DAYS_COUNT']
+          current_streak = os.environ.get('CURRENT_STREAK', total_days)
+          
+          # Create badges
+          total_badge_url = f'https://img.shields.io/badge/Total_Active_Days-{total_days}-FF4500?style=for-the-badge&logo=fire&logoColor=white'
+          streak_badge_url = f'https://img.shields.io/badge/Current_Streak-{current_streak}_days-00C853?style=for-the-badge&logo=github&logoColor=white'
+          
+          # Format with proper spacing
+          badge_markdown = f'![Total Active Days]({total_badge_url}) ![Current Streak]({streak_badge_url})'
+          
+          start_tag = '<!-- STREAK_BADGE_START -->'
+          end_tag = '<!-- STREAK_BADGE_END -->'
+          
+          # Add last updated timestamp
+          timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')
+          new_block = f'{start_tag}\n{badge_markdown}\n\n*Last updated: {timestamp}*\n{end_tag}'
+          
+          readme_path = 'README.md'
+          
+          # Read README
+          if os.path.exists(readme_path):
+              with open(readme_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+          else:
+              content = '# My Project\n\n'
+              print('README.md not found, creating new one.')
+          
+          # Replace or prepend
+          pattern = re.compile(f'{re.escape(start_tag)}.*?{re.escape(end_tag)}', re.DOTALL)
+          
+          if pattern.search(content):
+              new_content = pattern.sub(new_block, content)
+              print('Updated existing badge section.')
+          else:
+              new_content = f'{new_block}\n\n{content}'
+              print('Created new badge section at top.')
+          
+          # Save
+          with open(readme_path, 'w', encoding='utf-8') as f:
+              f.write(new_content)
+          
+          print(f'Badge updated: {total_days} total days, {current_streak} day streak')
+          "
+      
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🔥 Update streak: ${{ steps.count_days.outputs.CURRENT_STREAK }} days (Total: ${{ steps.count_days.outputs.DAYS_COUNT }})"
+          branch: ${{ github.ref_name }}
+          commit_user_name: github-actions[bot]
+          commit_user_email: github-actions[bot]@users.noreply.github.com
+          # Skip if no changes
+          skip_dirty_check: false
+          skip_fetch: false
+          skip_checkout: false
