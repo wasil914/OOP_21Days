@@ -3,12 +3,10 @@
 <!-- STREAK_BADGE_START -->
 ![Total Active Days](https://img.shields.io/badge/Total_Active_Days-1-FF4500?style=for-the-badge&logo=fire&logoColor=white) ![Current Streak](https://img.shields.io/badge/Current_Streak-1_days-00C853?style=for-the-badge&logo=github&logoColor=white)
 
-*Last updated: 2025-12-11 13:06 UTC*
+*Last updated: 2025-12-11 13:10 UTC*
 <!-- STREAK_BADGE_END -->
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat&logo=github)](https://github.com/yourusername/oop-bootcamp)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 ## 📖 About This Bootcamp
 
