@@ -1,0 +1,151 @@
+package Introduction;
+
+// Main class to test the Humans class functionality
+public class Main {
+
+    public static void main(String[] args) {
+
+        // ---------------------------------------------------------------
+        // 1. Creating object with default values (uncomment to test)
+        // ---------------------------------------------------------------
+        /*
+        Humans h1 = new Humans();
+        h1.age = 23;
+        h1.name = "Waz";
+        h1.b_type = 'A';
+
+        System.out.println(h1.age);
+        System.out.println(h1.name);
+        System.out.println(h1.b_type);
+        */
+
+        // ---------------------------------------------------------------
+        // 2. Using parameterized constructor
+        // ---------------------------------------------------------------
+        /*
+        Humans h3 = new Humans(43, "Osama", 'A');
+        System.out.println(h3.age);
+        System.out.println(h3.name);
+        System.out.println(h3.b_type);
+        */
+
+        // ---------------------------------------------------------------
+        // 3. Using methods: greeting() & namechanger()
+        // ---------------------------------------------------------------
+        /*
+        Humans h4 = new Humans(12, "Aslam", 'C');
+
+        System.out.println(h4.age);
+        System.out.println(h4.name);
+        System.out.println(h4.b_type);
+
+        h4.greeting();                 // calls method using 'this'
+        h4.namechanger("Wowsil");      // updates name using 'this'
+
+        System.out.println(h4.name);
+        */
+
+        // ---------------------------------------------------------------
+        // 4. Using default constructor (constructor chaining - if enabled)
+        // ---------------------------------------------------------------
+        /*
+        Humans h5 = new Humans();   // Will call constructor using 'this()'
+        System.out.println(h5.age);
+        System.out.println(h5.name);
+        System.out.println(h5.b_type);
+        */
+
+        // ---------------------------------------------------------------
+        // 5. Using Copy Constructor
+        // ---------------------------------------------------------------
+        /*
+        Humans h6 = new Humans(15, "John", 'K');
+        Humans h7 = new Humans(h6);     // copy constructor
+        System.out.println(h7.name);    // prints "John"
+        */
+    }
+}
+
+
+// ======================================================================
+// Humans Class - Demonstrates Constructors, Copy Constructor, Methods,
+//                this keyword, object creation concepts, OOP basics.
+// ======================================================================
+class Humans {
+
+    int age;        // instance variable - stores age of human
+    String name;    // instance variable - stores name
+    char b_type;    // instance variable - blood type
+
+    // ---------------------------------------------------------------
+    // PARAMETERIZED CONSTRUCTOR
+    // Demonstrates use of 'this' keyword for assigning values
+    // ---------------------------------------------------------------
+    Humans(int yearsold, String namez, char bt) {
+        this.age = yearsold;   // 'this' refers to the current object
+        this.name = namez;
+        this.b_type = bt;
+    }
+
+
+    // ---------------------------------------------------------------
+    // DEFAULT CONSTRUCTOR (Optional)
+    // Uncomment if you want default values using constructor chaining
+    // ---------------------------------------------------------------
+    /*
+    Humans() {
+        this(17, "Dylan", 'F');   // calls parameterized constructor
+    }
+    */
+
+
+    // ---------------------------------------------------------------
+    // METHOD - Greeting
+    // Demonstrates 'this' keyword inside methods
+    // ---------------------------------------------------------------
+    /*
+    void greeting() {
+        System.out.println("Hi " + this.name);
+    }
+    */
+
+    // ---------------------------------------------------------------
+    // METHOD - Name Changer
+    // Updates the name of an existing object
+    // ---------------------------------------------------------------
+    /*
+    void namechanger(String newName) {
+        this.name = newName;   // updates current object's name
+    }
+    */
+
+
+    // ---------------------------------------------------------------
+    // COPY CONSTRUCTOR
+    // Creates a new object by copying values of another object
+    // ---------------------------------------------------------------
+    Humans(Humans other) {
+        this.age = other.age;
+        this.name = other.name;
+        this.b_type = other.b_type;
+    }
+}
+
+
+#######$$$$$$$
+constructors
+
+default constructor
+
+parameterized constructor
+
+copy constructor
+
+this keyword
+
+methods
+
+object creation
+
+constructor chaining
+#######$$$$$$$
