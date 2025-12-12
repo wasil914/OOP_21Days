@@ -1,0 +1,62 @@
+package Introduction;
+
+// *************************** OOPS BOOTCAMP NOTES ******************************
+// This file demonstrates:
+// 1. Wrapper Classes (Integer)
+// 2. Pass-by-Value in Java
+// 3. Why swap() does NOT work for int OR Integer
+// 4. Class definitions (inner class)
+// ****************************************************************************
+
+public class WrapperC {
+    public static void main(String[] args){
+
+        // Primitive int
+        int A = 10;
+        // A.  ?  (No methods because primitives are NOT objects)
+
+        int s, t;
+        s = 10;
+        t = 20;
+
+        // Creating Integer object explicitly (older style)
+        Integer X = new Integer(45);
+        System.out.println(X);               // Prints value
+        System.out.println(X.toString());    // Wrapper class methods work because X is an object
+
+        // Autoboxing - modern recommended way
+        Integer Y = 90;
+
+        // Swap attempt (WILL NOT WORK)
+        swap(s, t);
+        System.out.println(s + " " + t);    // Still 10 20
+        // Reason:
+        // Java is ALWAYS pass-by-value.
+        // Even if using Integer instead of int, swap won't work.
+        // Why? Integer is final + immutable, and references are copied.
+
+        final A Wasil = new A("wasil");
+        // final reference means: Wasil cannot point to another object.
+        // But its internal fields can change (except final fields).
+    }
+
+    // Swap function
+    // Demonstrates Java pass-by-value
+    static void swap(int s, int t){
+        int temp = s;
+        s = t;
+        t = temp;
+    }
+
+    // Inner class A
+    // In Kunal's code, this class was non-static too.
+    // It works because instances are created inside main through "new A()".
+    class A{
+        final int num = 14;   // final field: cannot be reassigned
+        String name;
+
+        public A(String name){
+            this.name = name;
+        }
+    }
+}
