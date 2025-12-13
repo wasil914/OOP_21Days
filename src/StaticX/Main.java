@@ -9,6 +9,15 @@ public class Main {
         System.out.println(tiger.population);
         System.out.println(zebra.population);
 
+        greetingsss();
 
+    }
+    void greeting(){
+        greetingsss();
+    }
+
+    static  void greetingsss(){
+        System.out.println("heyy");
+        //fun();
     }
 }
