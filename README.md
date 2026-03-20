@@ -1,9 +1,9 @@
 # 🚀 21-Day Object-Oriented Programming Bootcamp
 
 <!-- STREAK_BADGE_START -->
-![Total Active Days](https://img.shields.io/badge/Total_Active_Days-98-FF4500?style=for-the-badge&logo=fire&logoColor=white) ![Current Streak](https://img.shields.io/badge/Current_Streak-98_days-00C853?style=for-the-badge&logo=github&logoColor=white)
+![Total Active Days](https://img.shields.io/badge/Total_Active_Days-99-FF4500?style=for-the-badge&logo=fire&logoColor=white) ![Current Streak](https://img.shields.io/badge/Current_Streak-99_days-00C853?style=for-the-badge&logo=github&logoColor=white)
 
-*Last updated: 2026-03-19 01:25 UTC*
+*Last updated: 2026-03-20 01:21 UTC*
 <!-- STREAK_BADGE_END -->
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=flat&logo=github)](https://github.com/yourusername/oop-bootcamp)
